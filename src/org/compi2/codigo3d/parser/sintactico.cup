@@ -48,6 +48,7 @@ inicial     ::= {: ControlC3D.reiniciar(); :} cond:con
                             ControlC3D.agregarC3D("//Etiqueta(S) de verdadero: " + con.getEtqv() + "\n");
                             ControlC3D.agregarC3D("//Etiqueta(S) de falso: " + con.getEtqf());
                         }else{
+
                             ControlC3D.agregarC3D("//Último valor: " + con.getCad());
                         }
                         RESULT = con;
