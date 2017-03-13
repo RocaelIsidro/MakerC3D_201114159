@@ -43,27 +43,30 @@ start with inicial;
 
 inicial     ::= {: ControlC3D.reiniciar(); :} cond:con 
                     {: 
+                        //ultimo valor dependiendo si trae 
+                        if(con.getEtqv()!=""){
+                            ControlC3D.agregarC3D("//Etiqueta(S) de verdadero: " + con.getEtqv() + "\n");
+                            ControlC3D.agregarC3D("//Etiqueta(S) de falso: " + con.getEtqf());
+                        }else{
+                            ControlC3D.agregarC3D("//Último valor: " + con.getCad());
+                        }
                         RESULT = con;
-                        ControlC3D.agregarC3D("//Último valor: " + con.getCad());
                     :};
 
-cond    ::=cond:izq OR cond:der{: 
-                        String temp = ControlC3D.generaTemp();
-                        String c3d = temp + " = " + izq.getCad() + " || " + der.getCad() + ";\n";
-                        ControlC3D.agregarC3D(c3d);
-                        RESULT = new NodoC3D(temp); 
-                    :}
-    |cond:izq AND cond:der{: 
-                        String temp = ControlC3D.generaTemp();
-                        String c3d = temp + " = " + izq.getCad() + " && " + der.getCad() + ";\n";
-                        ControlC3D.agregarC3D(c3d);
-                        RESULT = new NodoC3D(temp); 
+cond    ::=cond:izq  OR {:String c3d=izq.getEtqf() + ":" + "\n"; ControlC3D.agregarC3D(c3d); :} cond:der{: 
+                        String lv =izq.getEtqv() + " , " + der.getEtqv() + " ";
+                        String lf =der.getEtqf();
+                        RESULT = new NodoC3D(lv,lf); 
+                   :}
+    |cond:izq  AND {:String c3d=izq.getEtqv() + ":" + "\n"; ControlC3D.agregarC3D(c3d); :} cond:der{: 
+                        String lv = der.getEtqv();
+                        String lf =izq.getEtqf() + " , " +der.getEtqf() + " ";
+                        RESULT = new NodoC3D(lv,lf); 
                     :}
     |NOT cond:izq{: 
-                        String temp = ControlC3D.generaTemp();
-                        String c3d = temp + " = " + " ! " + izq.getCad()+";\n";
-                        ControlC3D.agregarC3D(c3d);
-                        RESULT = new NodoC3D(temp); 
+                        String lv =izq.getEtqf();
+                        String lf =izq.getEtqv();
+                        RESULT = new NodoC3D(lv,lf);
                     :}
     |relacional:rel{:
                         RESULT = rel;
@@ -71,10 +74,14 @@ cond    ::=cond:izq OR cond:der{:
 ;
 
 relacional ::= expresion:izq op_relacional:op expresion:der{: 
-                        String temp = ControlC3D.generaTemp();
-                        String c3d = temp + " = " + izq.getCad() + op + der.getCad() + ";\n";
+                        //String temp = ControlC3D.generaTemp();
+                        String lv =ControlC3D.generaEtq();
+                        String lf =ControlC3D.generaEtq();
+                        String c3d="if (" + izq.getCad() + op + der.getCad() + ") goto" + lv + " \n";
+                        c3d+="goto" + lf + " \n";
+                        //String c3d = temp + " = " + izq.getCad() + op + der.getCad() + "\n";
                         ControlC3D.agregarC3D(c3d);
-                        RESULT = new NodoC3D(temp); 
+                        RESULT = new NodoC3D(lv,lf); 
                     :}
      
     |expresion:exp{:
